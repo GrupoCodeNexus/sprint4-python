@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>{% block title %}{% endblock %}</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            sabaraBlue: '#0071CE',
+            sabaraGreen: '#A8D18D'
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-blue-50 min-h-screen flex flex-col">
+  <!-- Navbar fixa no topo -->
+  <nav class="bg-sabaraBlue text-white p-4 flex justify-between items-center shadow-md">
+    <h1 class="text-xl font-bold">Carrinho Médico</h1>
+    <div class="flex space-x-4 text-sm sm:text-base">
+      <a href="/" class="hover:underline">Dar Baixa</a>
+      <a href="/estoque" class="hover:underline">Estoque</a>
+    </div>
+  </nav>
+
+  <!-- Conteúdo da página -->
+  <main class="flex-1 p-4 sm:p-6 md:p-10">
+    {% block content %}{% endblock %}
+  </main>
+</body>
+</html>

@@ -1,0 +1,28 @@
+{% extends "layout.html" %}
+{% block title %}Estoque Completo{% endblock %}
+{% block content %}
+
+<h2 class="text-2xl font-semibold text-sabaraBlue mb-6">📋 Estoque do Carrinho</h2>
+
+<div class="overflow-x-auto bg-white rounded-xl shadow p-4">
+  <table class="min-w-full table-auto text-left text-sm md:text-base">
+    <thead class="bg-sabaraBlue text-white">
+      <tr>
+        <th class="p-3">Código</th>
+        <th class="p-3">Nome</th>
+        <th class="p-3">Quantidade</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for item in estoque %}
+      <tr class="even:bg-blue-50 odd:bg-white">
+        <td class="p-3">{{ item.codigo }}</td>
+        <td class="p-3 font-medium">{{ item.nome }}</td>
+        <td class="p-3">{{ item.quantidade }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% endblock %}

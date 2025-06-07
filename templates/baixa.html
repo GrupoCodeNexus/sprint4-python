@@ -1,0 +1,87 @@
+{% extends "layout.html" %}
+{% block title %}Dar Baixa{% endblock %}
+{% block content %}
+<h2 class="text-2xl font-semibold text-sabaraBlue mb-4">🔄 Dar Baixa por Código</h2>
+
+<form id="scan-form" class="mb-6">
+  <input type="text" id="codigo" placeholder="Escaneie o código do item..."
+    class="w-full p-4 border-2 border-sabaraBlue rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-300 text-lg"
+    autofocus autocomplete="off">
+</form>
+
+<div class="overflow-x-auto bg-white rounded-xl shadow p-4">
+  <table class="min-w-full table-auto text-left text-sm md:text-base">
+    <thead class="bg-sabaraBlue text-white">
+      <tr>
+        <th class="p-3">Data/Hora</th>
+        <th class="p-3">Item</th>
+      </tr>
+    </thead>
+    <tbody id="tabela">
+      {% for item in itens %}
+      <tr class="even:bg-blue-50 odd:bg-white">
+        <td class="p-3">{{ item.hora }}</td>
+        <td class="p-3 font-medium">{{ item.item }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<div class="mt-6 flex flex-col sm:flex-row gap-4 justify-center">
+  <button onclick="gerarRelatorio()"
+    class="bg-sabaraBlue hover:bg-blue-800 text-white font-semibold py-3 px-6 rounded-xl transition w-full sm:w-auto">
+    Gerar Relatório
+  </button>
+
+  <a href="/baixar_relatorio" class="w-full sm:w-auto text-center">
+    <button type="button"
+      class="bg-sabaraGreen hover:bg-green-600 text-white font-semibold py-3 px-6 rounded-xl transition w-full sm:w-auto">
+      Baixar Relatório
+    </button>
+  </a>
+</div>
+
+<script>
+  const form = document.getElementById("scan-form");
+  const codigoInput = document.getElementById("codigo");
+  const tabela = document.getElementById("tabela");
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const codigo = codigoInput.value.trim();
+    if (!codigo) return;
+
+    const res = await fetch("/scan", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: `codigo=${codigo}`
+    });
+
+    const data = await res.json();
+    if (data.success) {
+      const row = document.createElement("tr");
+      row.className = "even:bg-blue-50 odd:bg-white";
+      row.innerHTML = `
+        <td class="p-3">${data.hora}</td>
+        <td class="p-3 font-medium">${data.item}</td>
+      `;
+      tabela.appendChild(row);
+    } else {
+      alert(data.mensagem || "Erro ao registrar item.");
+    }
+
+    codigoInput.value = "";
+  });
+
+  async function gerarRelatorio() {
+    const res = await fetch("/gerar_relatorio", { method: "POST" });
+    const data = await res.json();
+    if (data.success) {
+      alert("✅ Relatório gerado com sucesso!");
+    } else {
+      alert("❌ Erro ao gerar relatório.");
+    }
+  }
+</script>
+{% endblock %}
