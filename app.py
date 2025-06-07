@@ -1,8 +1,10 @@
 from flask import Flask, render_template, request, jsonify, send_file
+from flask_socketio import SocketIO
 from datetime import datetime
 import os
 
 app = Flask(__name__)
+socketio = SocketIO(app)
 
 # Estoque inicial
 estoque = {
@@ -14,9 +16,22 @@ estoque = {
 # Histórico dos itens baixados
 historico = []
 
+# Cartões RFID autorizados
+cartoes_autorizados = {
+    "AB12CD34": "Enfermeira Ana",
+    "EF56GH78": "Enfermeiro João"
+}
+
+# Status atual do carrinho
+status_carrinho = {
+    "estado": "Fechado",
+    "ultimo_acesso": None,
+    "responsavel": None
+}
+
 @app.route("/")
 def dar_baixa():
-    return render_template("baixa.html", itens=historico)
+    return render_template("baixa.html", itens=historico, status=status_carrinho)
 
 @app.route("/estoque")
 def ver_estoque():
@@ -24,7 +39,7 @@ def ver_estoque():
         {"codigo": codigo, "nome": dados["nome"], "quantidade": dados["quantidade"]}
         for codigo, dados in estoque.items()
     ]
-    return render_template("estoque.html", estoque=estoque_lista)
+    return render_template("estoque.html", estoque=estoque_lista, status=status_carrinho)
 
 @app.route("/scan", methods=["POST"])
 def scan():
@@ -44,6 +59,23 @@ def scan():
         else:
             return jsonify(success=False, mensagem="Item esgotado.")
     return jsonify(success=False, mensagem="Item não encontrado.")
+
+@app.route("/alerta", methods=["POST"])
+def alerta():
+    data = request.get_json()
+    uid = data.get("uid")
+    nome = cartoes_autorizados.get(uid, f"Cartão {uid}")
+
+    status_carrinho["estado"] = "Aberto"
+    status_carrinho["ultimo_acesso"] = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+    status_carrinho["responsavel"] = nome
+
+    socketio.emit("carrinho_aberto", {
+        "responsavel": nome,
+        "hora": status_carrinho["ultimo_acesso"]
+    })
+
+    return jsonify(status="ok")
 
 @app.route("/gerar_relatorio", methods=["POST"])
 def gerar_relatorio():
@@ -67,4 +99,4 @@ def baixar_relatorio():
     return "Relatório não encontrado", 404
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    socketio.run(app, debug=True)
