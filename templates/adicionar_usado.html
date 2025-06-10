@@ -1,0 +1,225 @@
+{% extends "layout.html" %}
+{% block title %}Registrar Saída{% endblock %} {# Título mais claro para a função da página #}
+
+{% block content %}
+<div class="flex justify-between items-center mb-4">
+    <h2 class="text-2xl font-semibold text-blue-800 flex items-center gap-2">
+        ➖ Registrar Saída de Item
+    </h2>
+</div>
+
+<form id="form-baixa" class="mb-8 p-4 border border-blue-200 rounded-lg bg-blue-50">
+    <div class="mb-4">
+        <label for="paciente" class="block text-gray-700 text-sm font-bold mb-2">Nome do Paciente:</label>
+        <input type="text" id="paciente" name="paciente"
+               class="w-full p-3 border-2 border-blue-400 rounded-lg focus:outline-none"
+               placeholder="Ex: Ana Oliveira" required />
+    </div>
+    <div class="mb-4">
+        <label for="codigo" class="block text-gray-700 text-sm font-bold mb-2">Código ou Nome do Item:</label>
+        <input type="text" id="codigo" name="codigo" autofocus
+               class="w-full p-3 border-2 border-blue-400 rounded-lg focus:outline-none"
+               placeholder="Digite o código (ex: MED001) ou nome (ex: Paracetamol)..."
+               list="sugestoes-itens" required /> {# Adicionado list attribute para datalist #}
+        <datalist id="sugestoes-itens"></datalist> {# Datalist para autocompletar #}
+    </div>
+    {# NOVO CAMPO: TIPO #}
+    <div class="mb-4">
+        <label for="tipo_saida" class="block text-gray-700 text-sm font-bold mb-2">Tipo de Saída:</label>
+        <select id="tipo_saida" name="tipo_saida"
+                class="w-full p-3 border-2 border-blue-400 rounded-lg focus:outline-none" required>
+            <option value="">Selecione o Tipo</option>
+            <option value="Unidade">Unidade</option>
+            <option value="mg">mg</option>
+            <option value="g">g</option>
+            <option value="ml">ml</option>
+            <option value="L">L</option>
+            <option value="Caixa">Caixa</option>
+            <option value="Ampola">Ampola</option>
+            <option value="Frasco">Frasco</option>
+        </select>
+    </div>
+    <button type="submit"
+            class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded shadow w-full">
+        ➕ Registrar Saída
+    </button>
+</form>
+
+<h3 class="text-xl font-semibold text-blue-700 mb-2 mt-8">📋 Histórico de Saídas Recentes</h3>
+{% if historico %}
+<table class="w-full table-auto border border-gray-300 rounded-lg bg-white text-sm">
+    <thead class="bg-blue-100">
+        <tr>
+            <th class="px-4 py-2 border">Horário</th>
+            <th class="px-4 py-2 border">Item</th>
+            <th class="px-4 py-2 border">Tipo</th> {# NOVA COLUNA: TIPO #}
+            <th class="px-4 py-2 border">Paciente</th>
+        </tr>
+    </thead>
+    <tbody id="tabela-itens">
+        {% for item in historico|reverse %}
+        <tr>
+            <td class="border px-4 py-2">{{ item.hora }}</td>
+            <td class="border px-4 py-2">{{ item.item }}</td>
+            <td class="border px-4 py-2">{{ item.tipo if item.tipo else 'N/A' }}</td> {# Exibe o tipo #}
+            <td class="border px-4 py-2">{{ item.paciente }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p class="text-gray-500" id="no-items-message">Nenhum item foi registrado ainda.</p>
+{% endif %}
+
+<div class="mt-6 flex justify-center gap-4">
+    <button id="gerar-relatorio" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded shadow">Gerar Relatório</button>
+    <a href="/baixar_relatorio" id="baixar-relatorio" class="bg-green-300 text-white px-6 py-2 rounded shadow hover:bg-green-400">Baixar Relatório</a>
+</div>
+
+{# Alerta do carrinho via Socket.IO - Este div pode permanecer aqui #}
+<div id="alerta-carrinho" class="hidden bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative m-4 text-center transition-all duration-500">
+    Alerta do carrinho aqui.
+</div>
+
+{% endblock %}
+
+{% block scripts %} {# O JavaScript desta página agora está dentro do block scripts #}
+<script>
+    // Inicialização do Socket.IO
+    // A variável 'io' deve estar definida aqui porque o script socket.io.min.js foi carregado ANTES deste bloco.
+    const socket = io();
+    socket.on("carrinho_aberto", data => {
+        const alerta = document.getElementById("alerta-carrinho");
+        if (alerta) {
+            alerta.textContent = `🚨 Carrinho aberto por ${data.responsavel} às ${data.hora}`;
+            alerta.classList.remove("hidden");
+            setTimeout(() => alerta.classList.add("hidden"), 10000);
+        }
+    });
+
+    // Função para carregar sugestões de itens para autocompletar
+    async function carregarSugestoesItens() {
+        try {
+            const response = await fetch("/api/itens_nomes");
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const nomes = await response.json();
+            const datalist = document.getElementById("sugestoes-itens");
+            if (datalist) {
+                datalist.innerHTML = ""; // Limpa sugestões antigas
+                nomes.forEach(nome => {
+                    const option = document.createElement("option");
+                    option.value = nome;
+                    datalist.appendChild(option);
+                });
+            }
+        } catch (error) {
+            console.error("Erro ao carregar sugestões de itens:", error);
+        }
+    }
+
+    // Chama a função para carregar sugestões ao carregar a página
+    document.addEventListener("DOMContentLoaded", carregarSugestoesItens);
+
+    // Função para dar baixa em item (registrar item usado)
+    document.getElementById("form-baixa").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const codigo = document.getElementById("codigo").value;
+        const paciente = document.getElementById("paciente").value;
+        const tipoSaida = document.getElementById("tipo_saida").value; // Pega o valor do tipo
+
+        if (!codigo || !paciente || !tipoSaida) { // Valida o tipo também
+            alert("Por favor, preencha o nome do paciente, o código/nome do item e selecione o tipo.");
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append("codigo", codigo);
+        formData.append("paciente", paciente);
+        formData.append("tipo", tipoSaida); // Adiciona o tipo ao FormData
+
+        console.log("Enviando requisição /scan...");
+        const res = await fetch("/scan", {
+            method: "POST",
+            body: formData
+        });
+
+        const data = await res.json();
+        console.log("Resposta de /scan:", data);
+
+        if (data.success) {
+            alert(`✅ Item "${data.item}" (${data.tipo ? data.tipo : 'N/A'}) registrado para paciente "${data.paciente}"`); // Inclui o tipo no alerta
+
+            let tabelaItens = document.getElementById("tabela-itens"); // Referência ao tbody
+            const noItemsMessage = document.getElementById("no-items-message"); // Referência à mensagem "Nenhum item..."
+
+            // Se a tabela tbody não existe (porque historico estava vazio inicialmente), crie a estrutura completa da tabela
+            if (!tabelaItens) {
+                console.log("tabela-itens não encontrada. Criando a estrutura da tabela...");
+                if (noItemsMessage) {
+                    noItemsMessage.remove(); // Remove a mensagem "Nenhum item..."
+                }
+
+                const historicoH3 = document.querySelector('h3.text-blue-700.mb-2.mt-8');
+                if (historicoH3) {
+                    const newTableHtml = `
+                        <table class="w-full table-auto border border-gray-300 rounded-lg bg-white text-sm">
+                            <thead class="bg-blue-100">
+                                <tr>
+                                    <th class="px-4 py-2 border">Horário</th>
+                                    <th class="px-4 py-2 border">Item</th>
+                                    <th class="px-4 py-2 border">Tipo</th>
+                                    <th class="px-4 py-2 border">Paciente</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabela-itens">
+                            </tbody>
+                        </table>
+                    `;
+                    historicoH3.insertAdjacentHTML('afterend', newTableHtml);
+                    tabelaItens = document.getElementById("tabela-itens"); // Re-obtem a referência ao novo tbody
+                    console.log("Tabela e tbody criados:", tabelaItens);
+                } else {
+                    console.error("Erro: Não foi possível encontrar o elemento H3 para inserir a tabela de histórico.");
+                    alert("Erro interno: não foi possível exibir o item no histórico.");
+                    return; // Sai da função se não conseguir encontrar o ponto de inserção
+                }
+            } else {
+                console.log("tabela-itens já existe:", tabelaItens);
+            }
+
+            // Adiciona a nova linha ao início do tbody
+            if (tabelaItens) {
+                const tr = document.createElement("tr");
+                // ATUALIZADO: Inclui data.tipo na criação da linha
+                tr.innerHTML = `<td class="border px-4 py-2">${data.hora}</td><td class="border px-4 py-2">${data.item}</td><td class="border px-4 py-2">${data.tipo ? data.tipo : 'N/A'}</td><td class="border px-4 py-2">${data.paciente ? data.paciente : 'N/A'}</td>`;
+                tabelaItens.prepend(tr); // Adiciona a nova linha no início da tabela
+                console.log("Linha adicionada ao histórico.");
+            } else {
+                console.error("Erro: Tabela de histórico (tbody) não encontrada após tentativa de criação.");
+                alert("Erro interno: não foi possível adicionar o item ao histórico visual.");
+            }
+
+            document.getElementById("paciente").value = "";
+            document.getElementById("codigo").value = "";
+            document.getElementById("tipo_saida").value = ""; // Limpa o campo tipo
+            document.getElementById("paciente").focus();
+        } else {
+            alert("❌ " + data.mensagem);
+        }
+    });
+
+    // Funções para gerar e baixar relatório (mantidas, pois são úteis nesta página de histórico)
+    document.getElementById("gerar-relatorio").addEventListener("click", async () => {
+        const res = await fetch("/gerar_relatorio", { method: "POST" });
+        const data = await res.json();
+        if (data.success) {
+            alert("Relatório gerado com sucesso. Você pode baixá-lo agora.");
+        } else {
+            alert(data.mensagem);
+        }
+    });
+
+</script>
+{% endblock %}

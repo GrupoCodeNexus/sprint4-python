@@ -1,28 +1,77 @@
 {% extends "layout.html" %}
-{% block title %}Estoque Completo{% endblock %}
+{% block title %}Estoque{% endblock %}
+
 {% block content %}
 
-<h2 class="text-2xl font-semibold text-sabaraBlue mb-6">📋 Estoque do Carrinho</h2>
+<h3 class="text-xl font-semibold text-green-800 mb-2">📦 Itens em Estoque</h3>
 
-<div class="overflow-x-auto bg-white rounded-xl shadow p-4">
-  <table class="min-w-full table-auto text-left text-sm md:text-base">
-    <thead class="bg-sabaraBlue text-white">
-      <tr>
-        <th class="p-3">Código</th>
-        <th class="p-3">Nome</th>
-        <th class="p-3">Quantidade</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for item in estoque %}
-      <tr class="even:bg-blue-50 odd:bg-white">
-        <td class="p-3">{{ item.codigo }}</td>
-        <td class="p-3 font-medium">{{ item.nome }}</td>
-        <td class="p-3">{{ item.quantidade }}</td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+{# Exibe mensagem de sucesso se presente nos parâmetros da URL #}
+{% if success_message %}
+<div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4">
+    <strong class="font-bold">Sucesso:</strong>
+    <span class="block sm:inline">{{ success_message }}</span>
 </div>
+{% endif %}
+
+{# Exibe mensagem de erro se presente nos parâmetros da URL #}
+{% if error_message %}
+<div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4">
+    <strong class="font-bold">Erro:</strong>
+    <span class="block sm:inline">{{ error_message }}</span>
+</div>
+{% endif %}
+
+<table class="w-full table-auto border-collapse">
+  <thead>
+    <tr class="bg-green-100">
+      <th class="px-4 py-2 border">Código</th>
+      <th class="px-4 py-2 border">Nome</th>
+      <th class="px-4 py-2 border">Tipo</th> {# NOVA COLUNA: Tipo #}
+      <th class="px-4 py-2 border">Quantidade</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for item in estoque %}
+    <tr class="bg-white text-center">
+      <td class="px-4 py-2 border">{{ item.codigo }}</td>
+      <td class="px-4 py-2 border">{{ item.nome }}</td>
+      <td class="px-4 py-2 border">{{ item.tipo if item.tipo else 'N/A' }}</td> {# Exibe o tipo #}
+      <td class="px-4 py-2 border">{{ item.quantidade }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<h3 class="text-xl font-semibold mt-8 mb-4 text-green-800 flex items-center gap-2">➕ Adicionar Novo Item ao Estoque</h3>
+
+<form action="/adicionar_estoque" method="post" class="mb-8 p-4 border border-green-200 rounded-lg bg-green-50">
+  <div class="mb-4">
+    <label for="codigo" class="block text-gray-700 text-sm font-bold mb-2">Código (Único):</label>
+    <input type="text" id="codigo" name="codigo"
+           class="w-full p-3 border-2 border-green-400 rounded-lg focus:outline-none"
+           placeholder="Ex: MED005, ATB001..." required />
+  </div>
+  <div class="mb-4">
+    <label for="nome" class="block text-gray-700 text-sm font-bold mb-2">Nome do Item:</label>
+    <input type="text" id="nome" name="nome"
+           class="w-full p-3 border-2 border-green-400 rounded-lg focus:outline-none"
+           placeholder="Ex: Ibuprofeno, Luvas Estéreis..." required />
+  </div>
+  <div class="mb-4"> {# NOVO CAMPO: TIPO #}
+    <label for="tipo" class="block text-gray-700 text-sm font-bold mb-2">Tipo (Gota, MG, ML, Unidade, Injeção, etc.):</label>
+    <input type="text" id="tipo" name="tipo"
+           class="w-full p-3 border-2 border-green-400 rounded-lg focus:outline-none"
+           placeholder="Ex: Gota, MG, ML, Unidade..." required />
+  </div>
+  <div class="mb-4">
+    <label for="quantidade" class="block text-gray-700 text-sm font-bold mb-2">Quantidade Inicial:</label>
+    <input type="number" id="quantidade" name="quantidade" value="1" min="0"
+           class="w-full p-3 border-2 border-green-400 rounded-lg focus:outline-none" required />
+  </div>
+  <button type="submit"
+          class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded shadow w-full">
+    Adicionar Novo Item ao Estoque
+  </button>
+</form>
 
 {% endblock %}

@@ -1,0 +1,32 @@
+[
+  {
+    "codigo": "MED001",
+    "nome": "Paracetamol",
+    "quantidade": 100,
+    "tipo": "mg"
+  },
+  {
+    "codigo": "MED002",
+    "nome": "Dipirona",
+    "quantidade": 50,
+    "tipo": "ml"
+  },
+  {
+    "codigo": "ATB001",
+    "nome": "Soro Fisiologico",
+    "quantidade": 20,
+    "tipo": "ml"
+  },
+  {
+    "codigo": "CUR001",
+    "nome": "Atadura",
+    "quantidade": 30,
+    "tipo": "unidade"
+  },
+  {
+    "codigo": "MED005",
+    "nome": "asdas",
+    "quantidade": 1,
+    "tipo": "mg"
+  }
+]

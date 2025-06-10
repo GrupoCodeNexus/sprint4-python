@@ -20,18 +20,23 @@
   </script>
 </head>
 <body class="bg-blue-50 min-h-screen flex flex-col">
-  <!-- Navbar fixa no topo -->
   <nav class="bg-sabaraBlue text-white p-4 flex justify-between items-center shadow-md">
     <h1 class="text-xl font-bold">Carrinho Médico</h1>
     <div class="flex space-x-4 text-sm sm:text-base">
-      <a href="/" class="hover:underline">Dar Baixa</a>
+      <a href="/" class="hover:underline">Registrar Saída</a> {# Link atualizado para clareza #}
       <a href="/estoque" class="hover:underline">Estoque</a>
     </div>
   </nav>
 
-  <!-- Conteúdo da página -->
   <main class="flex-1 p-4 sm:p-6 md:p-10">
     {% block content %}{% endblock %}
   </main>
+
+  {# Carrega o Socket.IO localmente. ESSA LINHA PRECISA SER CARREGADA ANTES DE QUALQUER CÓDIGO QUE USE `io`. #}
+  <script src="{{ url_for('static', filename='js/socket.io.min.js') }}"></script>
+  
+  {# O bloco 'scripts' é onde seu JavaScript específico da página deve ir, APÓS o carregamento de libs como Socket.IO #}
+  {% block scripts %}{% endblock %} 
+
 </body>
 </html>
