@@ -1,45 +1,50 @@
-# Smart Flow | Sprint 4
+# SmartFlow | Sprint 4
 
-# ✅ Resumo Geral do Sistema
+## ✅ Resumo Geral do Sistema
 
-## 🔗 1. Integração com IoT (ESP32 + RFID + Servo + LED)
-O ESP32 detecta um cartão RFID autorizado.
-Ao ler o cartão, envia um POST /alerta com o uid para o Flask via Wi-Fi.
-O Flask:
-Marca o carrinho como "Aberto".
-Dispara um alerta em tempo real para o frontend com WebSocket (Flask-SocketIO).
-O servo motor e LEDs podem ser controlados no próprio ESP32 (ex: abrir carrinho, acender LED verde/vermelho).
+- 🔗 Integração com IoT (ESP32 + RFID + Servo + LED)
+- 🧠 Cadastro de Cartões RFID Autorizados:
+- 📄 Geração e Download de Relatório
+- ⚡ Alerta em Tempo Real no Navegador
+- 🧑‍⚕️ Interface Simples e Clara para Enfermeiras
 
-## 📦 2. Controle de Estoque
-Itens são armazenados com:
-Código (ex: código de barras)
-Nome
-Quantidade atual
+## Diagrama
+![diag](https://github.com/user-attachments/assets/f402abbc-c8b5-4ddd-8ffc-82673ec3c583)
 
-## 🧾 3. Baixa de Itens (com Scanner ou Digitação)
-A tela de baixa permite que o usuário:
-Escaneie um item com leitor de código de barras (que age como teclado).
-O item é automaticamente baixado do estoque (quantidade -1).
-A retirada é registrada no histórico com data/hora.
+## Links úteis
+Acessar o vídeo da solução no YouTube: <a href="">Clique Aqui</a>
 
-## 🧠 4. Cadastro de Cartões RFID Autorizados
-Cada UID RFID pode estar associado a um nome (ex: "Enfermeira Ana").
-Isso permite identificar quem abriu o carrinho no alerta.
+## Como instalar e rodar o projeto
 
-## 📄 5. Geração e Download de Relatório
-O sistema pode gerar um relatório de saídas (relatorio_saida.txt) com:
-Data e hora da retirada
-Nome do item
-Permite baixar o relatório diretamente do navegador.
+**Pré requisitos:**
+* `Python 3` instalado no seu sistema.
 
-## ⚡ 6. Alerta em Tempo Real no Navegador
-Assim que o ESP32 envia o alerta, o navegador exibe:
-Nome da pessoa
-Data/hora da abertura do carrinho
-Usa WebSockets com Flask-SocketIO para atualização imediata.
+**Como executar**
 
-## 🧑‍⚕️ 7. Interface Simples e Clara para Enfermeiras
-Layout com Tailwind CSS e navegação limpa:
-Página de baixa (/)
-Página de estoque (/estoque)
-Compatível com leitores de código de barras USB.
+Siga o passo a passo para executar o projeto
+
+1. **Clone o projeto na sua máquina com esse comando:**
+```bash
+git clone https://github.com/GrupoCodeNexus/sprint4-python
+cd sprint4-python
+```
+
+2.  **Execute o comando para rodar o projeto:**
+```bash
+python app.py
+```
+
+3. **Rodando no servidor local**
+
+Após seguir esses passos o terminal irá exibir a seguinte mensagem
+ * Running on http://127.0.0.1:5000
+
+Passe o mouse encima do link e use o comando (ctrl + click) ou clique em ``Follow link`` para acessar a aplicação.
+
+## Conheça nossa Equipe!
+- [Francisco Vargas](https://github.com/Franciscov25)
+- [Kayque Carvalho](https://github.com/Kay-Carv)
+- [Matheus Eiki](https://github.com/Matheus-Eiki)
+- [Marcelo Affonso](https://github.com/tenebres-cpu)
+
+![Design sem nome (2)](https://github.com/user-attachments/assets/b9c18376-a90e-4d79-8b71-036ff3f51e45)
