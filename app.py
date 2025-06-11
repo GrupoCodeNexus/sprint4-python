@@ -32,6 +32,31 @@ def salvar_json(caminho_arquivo, data):
         return False
 # --- Fim Funções Auxiliares ---
 
+# --- Rota para remover item do estoque ---
+@app.route("/remover_item", methods=["POST"])
+def remover_item():
+    codigo = request.form.get("codigo")
+
+    if not codigo:
+        return redirect(url_for("ver_estoque", error_message="Código do item ausente."))
+
+    if codigo not in estoque_por_codigo:
+        return redirect(url_for("ver_estoque", error_message=f"Item com código '{codigo}' não encontrado."))
+
+    # Remove da memória
+    item_removido = estoque_por_codigo.pop(codigo)
+    estoque_por_nome.pop(item_removido["nome"].lower(), None)
+
+    # Salva no JSON
+    if salvar_json(ESTOQUE_JSON_PATH, list(estoque_por_codigo.values())):
+        return redirect(url_for("ver_estoque", success_message=f"Item '{item_removido['nome']}' removido com sucesso."))
+    else:
+        # Reverte a remoção se falhar o salvamento
+        estoque_por_codigo[codigo] = item_removido
+        estoque_por_nome[item_removido["nome"].lower()] = item_removido
+        return redirect(url_for("ver_estoque", error_message="Erro ao salvar a remoção do item no arquivo."))
+
+
 # --- Carregamento Inicial dos Dados ---
 ESTOQUE_JSON_PATH = 'estoque.json'
 estoque_data = carregar_json(ESTOQUE_JSON_PATH, [])
@@ -109,7 +134,7 @@ def ver_estoque():
     success_message = request.args.get('success_message')
     error_message = request.args.get('error_message')
     return render_template("estoque.html", estoque=estoque_lista, status=status_carrinho,
-                           success_message=success_message, error_message=error_message)
+                            success_message=success_message, error_message=error_message)
 
 @app.route("/api/itens_nomes")
 def get_itens_nomes():
@@ -143,6 +168,45 @@ def scan():
         return jsonify(success=True, **registro) # Retorna o tipo no JSON de resposta
     
     return jsonify(success=False, mensagem="Item não encontrado. Verifique o código ou nome.")
+
+# NEW ROUTE: Get a specific historical item by index
+@app.route("/get_history_item/<int:index>", methods=["GET"])
+def get_history_item(index):
+    if 0 <= index < len(historico):
+        return jsonify(success=True, **historico[index])
+    return jsonify(success=False, mensagem="Item histórico não encontrado."), 404
+
+# NEW ROUTE: Edit a historical item
+@app.route("/edit_history_item", methods=["POST"])
+def edit_history_item():
+    index = int(request.form.get("index"))
+    updated_codigo = request.form.get("codigo")
+    updated_paciente = request.form.get("paciente")
+    updated_tipo = request.form.get("tipo")
+
+    if not (0 <= index < len(historico)):
+        return jsonify(success=False, mensagem="Índice do item histórico inválido."), 400
+    
+    if not updated_codigo or not updated_paciente or not updated_tipo:
+        return jsonify(success=False, mensagem="Todos os campos (item, paciente, tipo) são obrigatórios para a edição."), 400
+
+    item_encontrado = None
+    if updated_codigo in estoque_por_codigo:
+        item_encontrado = estoque_por_codigo[updated_codigo]
+    elif updated_codigo.lower() in estoque_por_nome:
+        item_encontrado = estoque_por_nome[updated_codigo.lower()]
+
+    if not item_encontrado:
+        return jsonify(success=False, mensagem="Item não encontrado no estoque. Verifique o código ou nome."), 400
+
+    # Update the historical record
+    historico[index]["item"] = item_encontrado["nome"]
+    historico[index]["paciente"] = updated_paciente
+    historico[index]["tipo"] = updated_tipo
+    historico[index]["hora"] = datetime.now().strftime("%d/%m/%Y %H:%M:%S") # Update timestamp
+
+    return jsonify(success=True, **historico[index])
+
 
 # Rota para adicionar item via AJAX (usado em adicionar_usado.html) - NÃO FOI ALTERADA, MAS MANTIDA PARA CONTEXTO
 @app.route("/add_item", methods=["POST"])

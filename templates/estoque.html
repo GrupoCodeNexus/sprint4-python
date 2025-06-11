@@ -28,6 +28,7 @@
       <th class="px-4 py-2 border">Nome</th>
       <th class="px-4 py-2 border">Tipo</th> {# NOVA COLUNA: Tipo #}
       <th class="px-4 py-2 border">Quantidade</th>
+      <th class="px-4 py-2 border">Ações</th>
     </tr>
   </thead>
   <tbody>
@@ -37,6 +38,13 @@
       <td class="px-4 py-2 border">{{ item.nome }}</td>
       <td class="px-4 py-2 border">{{ item.tipo if item.tipo else 'N/A' }}</td> {# Exibe o tipo #}
       <td class="px-4 py-2 border">{{ item.quantidade }}</td>
+      <td class="px-4 py-2 border">
+        {# Botão de ação (opcional) - você pode incluir opções como editar ou excluir #}
+        <form action="/remover_item" method="post" onsubmit="return confirm('Tem certeza que deseja remover este item?');">
+          <input type="hidden" name="codigo" value="{{ item.codigo }}">
+          <button type="submit" class="text-red-600 rounded-lg bg-red-100 px-2 py-1 transition duration-300 hover:bg-red-300 hover:text-red-800 font-semibold">Remover</button>
+        </form>
+      </td>
     </tr>
     {% endfor %}
   </tbody>
@@ -57,7 +65,7 @@
            class="w-full p-3 border-2 border-green-400 rounded-lg focus:outline-none"
            placeholder="Ex: Ibuprofeno, Luvas Estéreis..." required />
   </div>
-  <div class="mb-4"> {# NOVO CAMPO: TIPO #}
+  <div class="mb-4">
     <label for="tipo" class="block text-gray-700 text-sm font-bold mb-2">Tipo (Gota, MG, ML, Unidade, Injeção, etc.):</label>
     <input type="text" id="tipo" name="tipo"
            class="w-full p-3 border-2 border-green-400 rounded-lg focus:outline-none"

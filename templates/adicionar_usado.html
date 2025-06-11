@@ -8,7 +8,7 @@
     </h2>
 </div>
 
-<form id="form-baixa" class="mb-8 p-4 border border-blue-200 rounded-lg bg-blue-50">
+<form id="form-baixa" class="mb-8 p-4 border border-blue-200 rounded-lg bg-blue-100">
     <div class="mb-4">
         <label for="paciente" class="block text-gray-700 text-sm font-bold mb-2">Nome do Paciente:</label>
         <input type="text" id="paciente" name="paciente"
@@ -73,8 +73,25 @@
 
 <div class="mt-6 flex justify-center gap-4">
     <button id="gerar-relatorio" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded shadow">Gerar Relatório</button>
-    <a href="/baixar_relatorio" id="baixar-relatorio" class="bg-green-300 text-white px-6 py-2 rounded shadow hover:bg-green-400">Baixar Relatório</a>
+    <a href="#" id="b" class="bg-green-300 text-white px-6 py-2 rounded shadow hover:bg-green-400">Baixar Relatório</a>
 </div>
+
+<!--Logo parceiros-->
+<div class="flex justify-center items-center mt-8 mb-0">
+  <img src="../static/assets/logoParceiros.png" alt="logo-parceiros" class="w-40 h-auto object-contain" />
+</div>
+
+
+<!--rodapé-->
+<footer class="bg-sabaraBlue text-white p-4 flex justify-between items-center shadow-md">
+  <p class="text-sm">&copy; 2025 Hospital Sabará</p>
+  <div class="flex space-x-4 text-sm sm:text-base">
+    <a href="#" class="transition duration-300 hover:text-yellow-200">Contato</a>
+    <a href="#" class="transition duration-300 hover:text-yellow-200">Ajuda</a>
+  </div>
+</footer>
+
+
 
 {# Alerta do carrinho via Socket.IO - Este div pode permanecer aqui #}
 <div id="alerta-carrinho" class="hidden bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative m-4 text-center transition-all duration-500">

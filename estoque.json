@@ -8,7 +8,7 @@
   {
     "codigo": "MED002",
     "nome": "Dipirona",
-    "quantidade": 50,
+    "quantidade": 49,
     "tipo": "ml"
   },
   {
@@ -22,11 +22,5 @@
     "nome": "Atadura",
     "quantidade": 30,
     "tipo": "unidade"
-  },
-  {
-    "codigo": "MED005",
-    "nome": "asdas",
-    "quantidade": 1,
-    "tipo": "mg"
   }
 ]
