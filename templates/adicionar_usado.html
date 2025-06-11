@@ -1,5 +1,5 @@
 {% extends "layout.html" %}
-{% block title %}Registrar Saída{% endblock %} {# Título mais claro para a função da página #}
+{% block title %}Registrar Saída{% endblock %}
 
 {% block content %}
 <div class="flex justify-between items-center mb-4">
@@ -20,10 +20,9 @@
         <input type="text" id="codigo" name="codigo" autofocus
                class="w-full p-3 border-2 border-blue-400 rounded-lg focus:outline-none"
                placeholder="Digite o código (ex: MED001) ou nome (ex: Paracetamol)..."
-               list="sugestoes-itens" required /> {# Adicionado list attribute para datalist #}
-        <datalist id="sugestoes-itens"></datalist> {# Datalist para autocompletar #}
+               list="sugestoes-itens" required />
+        <datalist id="sugestoes-itens"></datalist>
     </div>
-    {# NOVO CAMPO: TIPO #}
     <div class="mb-4">
         <label for="tipo_saida" class="block text-gray-700 text-sm font-bold mb-2">Tipo de Saída:</label>
         <select id="tipo_saida" name="tipo_saida"
@@ -52,17 +51,22 @@
         <tr>
             <th class="px-4 py-2 border">Horário</th>
             <th class="px-4 py-2 border">Item</th>
-            <th class="px-4 py-2 border">Tipo</th> {# NOVA COLUNA: TIPO #}
+            <th class="px-4 py-2 border">Tipo</th>
             <th class="px-4 py-2 border">Paciente</th>
+            <th class="px-4 py-2 border">Ações</th> {# NOVA COLUNA PARA AÇÕES #}
         </tr>
     </thead>
     <tbody id="tabela-itens">
         {% for item in historico|reverse %}
-        <tr>
+        <tr id="item-{{ item.id }}"> {# Adicionado ID para facilitar remoção/edição via JS #}
             <td class="border px-4 py-2">{{ item.hora }}</td>
             <td class="border px-4 py-2">{{ item.item }}</td>
-            <td class="border px-4 py-2">{{ item.tipo if item.tipo else 'N/A' }}</td> {# Exibe o tipo #}
+            <td class="border px-4 py-2">{{ item.tipo if item.tipo else 'N/A' }}</td>
             <td class="border px-4 py-2">{{ item.paciente }}</td>
+            <td class="border px-4 py-2 text-center">
+                <button onclick="editarItem('{{ item.id }}')" class="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded text-xs mr-2">Editar</button>
+                <button onclick="removerItem('{{ item.id }}')" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-xs">Remover</button>
+            </td>
         </tr>
         {% endfor %}
     </tbody>
@@ -81,7 +85,6 @@
   <img src="../static/assets/logoParceiros.png" alt="logo-parceiros" class="w-40 h-auto object-contain" />
 </div>
 
-
 <!--rodapé-->
 <footer class="bg-sabaraBlue text-white p-4 flex justify-between items-center shadow-md">
   <p class="text-sm">&copy; 2025 Hospital Sabará</p>
@@ -91,11 +94,44 @@
   </div>
 </footer>
 
-
-
 {# Alerta do carrinho via Socket.IO - Este div pode permanecer aqui #}
 <div id="alerta-carrinho" class="hidden bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative m-4 text-center transition-all duration-500">
     Alerta do carrinho aqui.
+</div>
+
+{# Modal de Edição (Adicionado) #}
+<div id="editModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center hidden">
+    <div class="bg-white p-6 rounded-lg shadow-xl w-96">
+        <h3 class="text-xl font-semibold mb-4">Editar Registro de Saída</h3>
+        <form id="editForm">
+            <input type="hidden" id="editItemId">
+            <div class="mb-4">
+                <label for="editPaciente" class="block text-gray-700 text-sm font-bold mb-2">Paciente:</label>
+                <input type="text" id="editPaciente" class="w-full p-2 border border-gray-300 rounded" required>
+            </div>
+            <div class="mb-4">
+                <label for="editItem" class="block text-gray-700 text-sm font-bold mb-2">Item:</label>
+                <input type="text" id="editItem" class="w-full p-2 border border-gray-300 rounded" required>
+            </div>
+            <div class="mb-4">
+                <label for="editTipo" class="block text-gray-700 text-sm font-bold mb-2">Tipo:</label>
+                <select id="editTipo" class="w-full p-2 border border-gray-300 rounded" required>
+                    <option value="Unidade">Unidade</option>
+                    <option value="mg">mg</option>
+                    <option value="g">g</option>
+                    <option value="ml">ml</option>
+                    <option value="L">L</option>
+                    <option value="Caixa">Caixa</option>
+                    <option value="Ampola">Ampola</option>
+                    <option value="Frasco">Frasco</option>
+                </select>
+            </div>
+            <div class="flex justify-end">
+                <button type="button" onclick="salvarEdicao()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded mr-2">Salvar</button>
+                <button type="button" onclick="fecharModal()" class="bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded">Cancelar</button>
+            </div>
+        </form>
+    </div>
 </div>
 
 {% endblock %}
@@ -103,7 +139,6 @@
 {% block scripts %} {# O JavaScript desta página agora está dentro do block scripts #}
 <script>
     // Inicialização do Socket.IO
-    // A variável 'io' deve estar definida aqui porque o script socket.io.min.js foi carregado ANTES deste bloco.
     const socket = io();
     socket.on("carrinho_aberto", data => {
         const alerta = document.getElementById("alerta-carrinho");
@@ -124,7 +159,7 @@
             const nomes = await response.json();
             const datalist = document.getElementById("sugestoes-itens");
             if (datalist) {
-                datalist.innerHTML = ""; // Limpa sugestões antigas
+                datalist.innerHTML = "";
                 nomes.forEach(nome => {
                     const option = document.createElement("option");
                     option.value = nome;
@@ -136,7 +171,6 @@
         }
     }
 
-    // Chama a função para carregar sugestões ao carregar a página
     document.addEventListener("DOMContentLoaded", carregarSugestoesItens);
 
     // Função para dar baixa em item (registrar item usado)
@@ -144,9 +178,9 @@
         e.preventDefault();
         const codigo = document.getElementById("codigo").value;
         const paciente = document.getElementById("paciente").value;
-        const tipoSaida = document.getElementById("tipo_saida").value; // Pega o valor do tipo
+        const tipoSaida = document.getElementById("tipo_saida").value;
 
-        if (!codigo || !paciente || !tipoSaida) { // Valida o tipo também
+        if (!codigo || !paciente || !tipoSaida) {
             alert("Por favor, preencha o nome do paciente, o código/nome do item e selecione o tipo.");
             return;
         }
@@ -154,89 +188,216 @@
         const formData = new FormData();
         formData.append("codigo", codigo);
         formData.append("paciente", paciente);
-        formData.append("tipo", tipoSaida); // Adiciona o tipo ao FormData
+        formData.append("tipo", tipoSaida);
 
         console.log("Enviando requisição /scan...");
-        const res = await fetch("/scan", {
-            method: "POST",
-            body: formData
-        });
+        try {
+            const res = await fetch("/scan", {
+                method: "POST",
+                body: formData
+            });
 
-        const data = await res.json();
-        console.log("Resposta de /scan:", data);
+            const data = await res.json();
+            console.log("Resposta de /scan:", data);
 
-        if (data.success) {
-            alert(`✅ Item "${data.item}" (${data.tipo ? data.tipo : 'N/A'}) registrado para paciente "${data.paciente}"`); // Inclui o tipo no alerta
+            if (data.success) {
+                alert(`✅ Item "${data.item}" (${data.tipo ? data.tipo : 'N/A'}) registrado para paciente "${data.paciente}"`);
 
-            let tabelaItens = document.getElementById("tabela-itens"); // Referência ao tbody
-            const noItemsMessage = document.getElementById("no-items-message"); // Referência à mensagem "Nenhum item..."
+                let tabelaItens = document.getElementById("tabela-itens");
+                const noItemsMessage = document.getElementById("no-items-message");
 
-            // Se a tabela tbody não existe (porque historico estava vazio inicialmente), crie a estrutura completa da tabela
-            if (!tabelaItens) {
-                console.log("tabela-itens não encontrada. Criando a estrutura da tabela...");
-                if (noItemsMessage) {
-                    noItemsMessage.remove(); // Remove a mensagem "Nenhum item..."
-                }
+                if (!tabelaItens || !document.querySelector('table')) {
+                    console.log("Tabela de histórico não encontrada. Criando a estrutura da tabela...");
+                    if (noItemsMessage) {
+                        noItemsMessage.remove();
+                    }
 
-                const historicoH3 = document.querySelector('h3.text-blue-700.mb-2.mt-8');
-                if (historicoH3) {
-                    const newTableHtml = `
-                        <table class="w-full table-auto border border-gray-300 rounded-lg bg-white text-sm">
-                            <thead class="bg-blue-100">
-                                <tr>
-                                    <th class="px-4 py-2 border">Horário</th>
-                                    <th class="px-4 py-2 border">Item</th>
-                                    <th class="px-4 py-2 border">Tipo</th>
-                                    <th class="px-4 py-2 border">Paciente</th>
-                                </tr>
-                            </thead>
-                            <tbody id="tabela-itens">
-                            </tbody>
-                        </table>
-                    `;
-                    historicoH3.insertAdjacentHTML('afterend', newTableHtml);
-                    tabelaItens = document.getElementById("tabela-itens"); // Re-obtem a referência ao novo tbody
-                    console.log("Tabela e tbody criados:", tabelaItens);
+                    const historicoH3 = document.querySelector('h3.text-blue-700.mb-2.mt-8');
+                    if (historicoH3) {
+                        const newTableHtml = `
+                            <table class="w-full table-auto border border-gray-300 rounded-lg bg-white text-sm">
+                                <thead class="bg-blue-100">
+                                    <tr>
+                                        <th class="px-4 py-2 border">Horário</th>
+                                        <th class="px-4 py-2 border">Item</th>
+                                        <th class="px-4 py-2 border">Tipo</th>
+                                        <th class="px-4 py-2 border">Paciente</th>
+                                        <th class="px-4 py-2 border">Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tabela-itens">
+                                </tbody>
+                            </table>
+                        `;
+                        historicoH3.insertAdjacentHTML('afterend', newTableHtml);
+                        tabelaItens = document.getElementById("tabela-itens");
+                        console.log("Tabela e tbody criados:", tabelaItens);
+                    } else {
+                        console.error("Erro: Não foi possível encontrar o elemento H3 para inserir a tabela de histórico.");
+                        alert("Erro interno: não foi possível exibir o item no histórico.");
+                        return;
+                    }
                 } else {
-                    console.error("Erro: Não foi possível encontrar o elemento H3 para inserir a tabela de histórico.");
-                    alert("Erro interno: não foi possível exibir o item no histórico.");
-                    return; // Sai da função se não conseguir encontrar o ponto de inserção
+                    console.log("tabela-itens já existe:", tabelaItens);
+                }
+
+                if (tabelaItens) {
+                    const tr = document.createElement("tr");
+                    tr.id = `item-${data.id}`;
+                    tr.innerHTML = `
+                        <td class="border px-4 py-2">${data.hora}</td>
+                        <td class="border px-4 py-2">${data.item}</td>
+                        <td class="border px-4 py-2">${data.tipo ? data.tipo : 'N/A'}</td>
+                        <td class="border px-4 py-2">${data.paciente ? data.paciente : 'N/A'}</td>
+                        <td class="border px-4 py-2 text-center">
+                            <button onclick="editarItem('${data.id}')" class="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded text-xs mr-2">Editar</button>
+                            <button onclick="removerItem('${data.id}')" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-xs">Remover</button>
+                        </td>
+                    `;
+                    tabelaItens.prepend(tr);
+                    console.log("Linha adicionada ao histórico.");
+                } else {
+                    console.error("Erro: Tabela de histórico (tbody) não encontrada após tentativa de criação.");
+                    alert("Erro interno: não foi possível adicionar o item ao histórico visual.");
+                }
+
+                document.getElementById("paciente").value = "";
+                document.getElementById("codigo").value = "";
+                document.getElementById("tipo_saida").value = "";
+                document.getElementById("paciente").focus();
+            } else {
+                alert("❌ " + data.mensagem);
+            }
+        } catch (error) {
+            console.error("Erro na requisição /scan:", error);
+            alert("Erro de comunicação ao registrar item.");
+        }
+    });
+
+    // Funções para gerar e baixar relatório
+    document.getElementById("gerar-relatorio").addEventListener("click", async () => {
+        try {
+            const res = await fetch("/gerar_relatorio", { method: "POST" });
+            const data = await res.json();
+            if (data.success) {
+                alert("Relatório gerado com sucesso. Você pode baixá-lo agora.");
+            } else {
+                alert(data.mensagem);
+            }
+        } catch (error) {
+            console.error("Erro na requisição de geração de relatório:", error);
+            alert("Erro de comunicação ao gerar relatório.");
+        }
+    });
+
+    // --- Funções de Edição e Remoção ---
+
+    // Abre o modal de edição
+    async function editarItem(id) {
+        try {
+            const response = await fetch(`/api/historico/${id}`);
+            if (!response.ok) {
+                // Tenta ler a mensagem de erro do servidor se disponível
+                const errorData = await response.json().catch(() => ({ message: `Erro HTTP ${response.status}` }));
+                throw new Error(`HTTP error! status: ${response.status}, message: ${errorData.message}`);
+            }
+            const item = await response.json();
+
+            document.getElementById('editItemId').value = id;
+            document.getElementById('editPaciente').value = item.paciente || '';
+            document.getElementById('editItem').value = item.item || '';
+            document.getElementById('editTipo').value = item.tipo || '';
+
+            document.getElementById('editModal').classList.remove('hidden');
+        } catch (error) {
+            console.error("Erro ao carregar dados para edição:", error);
+            alert("Erro ao carregar dados para edição: " + error.message);
+        }
+    }
+
+    // Fecha o modal de edição
+    function fecharModal() {
+        document.getElementById('editModal').classList.add('hidden');
+    }
+
+    // Salva as edições de um item
+    async function salvarEdicao() {
+        const id = document.getElementById('editItemId').value;
+        const paciente = document.getElementById('editPaciente').value;
+        const item = document.getElementById('editItem').value;
+        const tipo = document.getElementById('editTipo').value;
+
+        const formData = new FormData();
+        formData.append('id', id); // É bom enviar o ID no FormData também, embora já esteja na URL
+        formData.append('paciente', paciente);
+        formData.append('item', item);
+        formData.append('tipo', tipo);
+
+        try {
+            const response = await fetch(`/api/historico/${id}`, {
+                method: 'PUT',
+                body: formData
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                alert("Item atualizado com sucesso!");
+                fecharModal();
+                // Atualizar a linha na tabela visualmente
+                const row = document.getElementById(`item-${id}`);
+                if (row) {
+                    row.children[1].textContent = item;
+                    row.children[2].textContent = tipo;
+                    row.children[3].textContent = paciente;
                 }
             } else {
-                console.log("tabela-itens já existe:", tabelaItens);
+                alert("Erro ao atualizar item: " + data.message);
             }
+        } catch (error) {
+            console.error("Erro na requisição de edição:", error);
+            alert("Erro de comunicação ao salvar edição.");
+        }
+    }
 
-            // Adiciona a nova linha ao início do tbody
-            if (tabelaItens) {
-                const tr = document.createElement("tr");
-                // ATUALIZADO: Inclui data.tipo na criação da linha
-                tr.innerHTML = `<td class="border px-4 py-2">${data.hora}</td><td class="border px-4 py-2">${data.item}</td><td class="border px-4 py-2">${data.tipo ? data.tipo : 'N/A'}</td><td class="border px-4 py-2">${data.paciente ? data.paciente : 'N/A'}</td>`;
-                tabelaItens.prepend(tr); // Adiciona a nova linha no início da tabela
-                console.log("Linha adicionada ao histórico.");
-            } else {
-                console.error("Erro: Tabela de histórico (tbody) não encontrada após tentativa de criação.");
-                alert("Erro interno: não foi possível adicionar o item ao histórico visual.");
+    // Remove um item
+    async function removerItem(id) {
+        if (confirm("Tem certeza que deseja remover este registro?")) {
+            try {
+                const response = await fetch(`/api/historico/${id}`, {
+                    method: 'DELETE'
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    alert("Item removido com sucesso!");
+                    const row = document.getElementById(`item-${id}`);
+                    if (row) {
+                        row.remove();
+                    }
+                    // Verifica se a tabela ficou vazia após a remoção
+                    if (document.getElementById("tabela-itens").rows.length === 0) {
+                        const historicoH3 = document.querySelector('h3.text-blue-700.mb-2.mt-8');
+                        if (historicoH3 && !document.getElementById("no-items-message")) {
+                            const p = document.createElement('p');
+                            p.id = "no-items-message";
+                            p.className = "text-gray-500";
+                            p.textContent = "Nenhum item foi registrado ainda.";
+                            historicoH3.insertAdjacentElement('afterend', p);
+                        }
+                        const tableElement = document.querySelector('table');
+                        if (tableElement) {
+                             tableElement.remove(); // Remove a tabela completa
+                        }
+                    }
+                } else {
+                    alert("Erro ao remover item: " + data.message);
+                }
+            } catch (error) {
+                console.error("Erro na requisição de remoção:", error);
+                alert("Erro de comunicação ao remover item.");
             }
-
-            document.getElementById("paciente").value = "";
-            document.getElementById("codigo").value = "";
-            document.getElementById("tipo_saida").value = ""; // Limpa o campo tipo
-            document.getElementById("paciente").focus();
-        } else {
-            alert("❌ " + data.mensagem);
         }
-    });
-
-    // Funções para gerar e baixar relatório (mantidas, pois são úteis nesta página de histórico)
-    document.getElementById("gerar-relatorio").addEventListener("click", async () => {
-        const res = await fetch("/gerar_relatorio", { method: "POST" });
-        const data = await res.json();
-        if (data.success) {
-            alert("Relatório gerado com sucesso. Você pode baixá-lo agora.");
-        } else {
-            alert(data.mensagem);
-        }
-    });
-
+    }
 </script>
 {% endblock %}
