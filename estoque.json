@@ -1,11 +1,5 @@
 [
   {
-    "codigo": "MED001",
-    "nome": "Paracetamol",
-    "quantidade": 100,
-    "tipo": "mg"
-  },
-  {
     "codigo": "MED002",
     "nome": "Dipirona",
     "quantidade": 49,
@@ -22,5 +16,11 @@
     "nome": "Atadura",
     "quantidade": 30,
     "tipo": "unidade"
+  },
+  {
+    "codigo": "MED001",
+    "nome": "Paracetamol",
+    "quantidade": 50,
+    "tipo": "mg"
   }
 ]

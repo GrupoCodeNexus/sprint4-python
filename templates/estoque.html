@@ -5,7 +5,6 @@
 
 <h3 class="text-xl font-semibold text-green-800 mb-2">📦 Itens em Estoque</h3>
 
-{# Exibe mensagem de sucesso se presente nos parâmetros da URL #}
 {% if success_message %}
 <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4">
     <strong class="font-bold">Sucesso:</strong>
@@ -13,7 +12,6 @@
 </div>
 {% endif %}
 
-{# Exibe mensagem de erro se presente nos parâmetros da URL #}
 {% if error_message %}
 <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4">
     <strong class="font-bold">Erro:</strong>
@@ -26,7 +24,7 @@
     <tr class="bg-green-100">
       <th class="px-4 py-2 border">Código</th>
       <th class="px-4 py-2 border">Nome</th>
-      <th class="px-4 py-2 border">Tipo</th> {# NOVA COLUNA: Tipo #}
+      <th class="px-4 py-2 border">Tipo</th>
       <th class="px-4 py-2 border">Quantidade</th>
       <th class="px-4 py-2 border">Ações</th>
     </tr>
@@ -34,17 +32,27 @@
   <tbody>
     {% for item in estoque %}
     <tr class="bg-white text-center">
-      <td class="px-4 py-2 border">{{ item.codigo }}</td>
-      <td class="px-4 py-2 border">{{ item.nome }}</td>
-      <td class="px-4 py-2 border">{{ item.tipo if item.tipo else 'N/A' }}</td> {# Exibe o tipo #}
-      <td class="px-4 py-2 border">{{ item.quantidade }}</td>
-      <td class="px-4 py-2 border">
-        {# Botão de ação (opcional) - você pode incluir opções como editar ou excluir #}
-        <form action="/remover_item" method="post" onsubmit="return confirm('Tem certeza que deseja remover este item?');">
-          <input type="hidden" name="codigo" value="{{ item.codigo }}">
-          <button type="submit" class="text-red-600 rounded-lg bg-red-100 px-2 py-1 transition duration-300 hover:bg-red-300 hover:text-red-800 font-semibold">Remover</button>
-        </form>
-      </td>
+      <form action="/editar_item" method="post" class="flex flex-col md:flex-row">
+        <td class="px-4 py-2 border">
+          <input type="text" name="codigo" value="{{ item.codigo }}" readonly class="w-full text-center bg-gray-100 border-none">
+        </td>
+        <td class="px-4 py-2 border">
+          <input type="text" name="nome" value="{{ item.nome }}" class="w-full border border-gray-300 rounded px-2 py-1">
+        </td>
+        <td class="px-4 py-2 border">
+          <input type="text" name="tipo" value="{{ item.tipo }}" class="w-full border border-gray-300 rounded px-2 py-1">
+        </td>
+        <td class="px-4 py-2 border">
+          <input type="number" name="quantidade" value="{{ item.quantidade }}" class="w-full border border-gray-300 rounded px-2 py-1">
+        </td>
+        <td class="px-4 py-2 border flex flex-col md:flex-row gap-2 justify-center items-center">
+          <button type="submit" class="bg-yellow-400 text-white font-semibold px-4 py-1 rounded hover:bg-yellow-500 transition">Editar</button>
+      </form>
+          <form action="/remover_item" method="post" onsubmit="return confirm('Tem certeza que deseja remover este item?');">
+            <input type="hidden" name="codigo" value="{{ item.codigo }}">
+            <button type="submit" class="bg-red-500 text-white font-semibold px-4 py-1 rounded hover:bg-red-600 transition">Remover</button>
+          </form>
+        </td>
     </tr>
     {% endfor %}
   </tbody>
@@ -66,7 +74,7 @@
            placeholder="Ex: Ibuprofeno, Luvas Estéreis..." required />
   </div>
   <div class="mb-4">
-    <label for="tipo" class="block text-gray-700 text-sm font-bold mb-2">Tipo (Gota, MG, ML, Unidade, Injeção, etc.):</label>
+    <label for="tipo" class="block text-gray-700 text-sm font-bold mb-2">Tipo:</label>
     <input type="text" id="tipo" name="tipo"
            class="w-full p-3 border-2 border-green-400 rounded-lg focus:outline-none"
            placeholder="Ex: Gota, MG, ML, Unidade..." required />
