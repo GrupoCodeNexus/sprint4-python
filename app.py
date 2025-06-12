@@ -70,7 +70,8 @@ estoque = estoque_por_codigo
 CARTOES_RFID_JSON_PATH = 'cartoes_rfid.json'
 cartoes_autorizados = carregar_json(CARTOES_RFID_JSON_PATH, {})
 
-historico = []
+HISTORICO_JSON_PATH = 'historico_saidas.json' # <--- ADIÇÃO: Nova constante para o caminho do arquivo do histórico
+historico = carregar_json(HISTORICO_JSON_PATH, [])
 
 status_carrinho = {
     "estado": "Fechado",
@@ -165,6 +166,7 @@ def scan():
             "paciente": paciente if paciente else "N/A"
         }
         historico.append(registro)
+        salvar_json(HISTORICO_JSON_PATH, historico)
         return jsonify(success=True, **registro) # Retorna o tipo no JSON de resposta
     
     return jsonify(success=False, mensagem="Item não encontrado. Verifique o código ou nome.")
@@ -205,6 +207,8 @@ def edit_history_item():
     historico[index]["tipo"] = updated_tipo
     historico[index]["hora"] = datetime.now().strftime("%d/%m/%Y %H:%M:%S") # Update timestamp
 
+    salvar_json(HISTORICO_JSON_PATH, historico)
+
     return jsonify(success=True, **historico[index])
 
 
@@ -235,6 +239,23 @@ def adicionar_estoque():
     else:
         # Redireciona para a página de estoque com mensagem de erro
         return redirect(url_for('ver_estoque', error_message=message))
+
+@app.route("/delete_history_item", methods=["POST"]) # <--- ADIÇÃO: Nova rota para remover do histórico
+def delete_history_item():
+    index = request.form.get("index", type=int)
+
+    if index is None or not (0 <= index < len(historico)):
+        return jsonify(success=False, mensagem="Índice do item histórico inválido."), 400
+    
+    try:
+        # Remove o item do histórico
+        removed_item = historico.pop(index)
+        # Salva o histórico atualizado no arquivo JSON
+        salvar_json(HISTORICO_JSON_PATH, historico)
+        return jsonify(success=True, mensagem=f"Item '{removed_item['item']}' do histórico removido com sucesso.")
+    except Exception as e:
+        print(f"Erro ao remover item do histórico: {e}")
+        return jsonify(success=False, mensagem="Erro interno ao remover item do histórico."), 500
 
 
 @app.route("/alerta", methods=["POST"])
