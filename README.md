@@ -37,12 +37,18 @@ git clone https://github.com/GrupoCodeNexus/sprint4-python
 cd sprint4-python
 ```
 
-2.  **Execute o comando para rodar o projeto:**
+2. **Instalação das bibliotecas necessárias**
+```bash
+pip install flask
+pip install python-socketio
+```
+
+4.  **Execute o comando para rodar o projeto:**
 ```bash
 python app.py
 ```
 
-3. **Rodando no servidor local**
+4. **Rodando no servidor local**
 
 Após seguir esses passos o terminal irá exibir a seguinte mensagem
  * Running on http://127.0.0.1:5000
