@@ -10,8 +10,6 @@
     "nome": "Soro Fisiologico",
     "quantidade": 20,
     "tipo": "ml"
-<<<<<<< HEAD
-=======
   },
   {
     "codigo": "CUR001",
@@ -24,6 +22,5 @@
     "nome": "Paracetamol",
     "quantidade": 50,
     "tipo": "mg"
->>>>>>> e4a081d5701688b3a67e89b1044ba86a94c5baa1
   }
 ]
