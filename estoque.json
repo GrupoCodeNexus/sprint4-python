@@ -16,11 +16,5 @@
     "nome": "Soro Fisiologico",
     "quantidade": 20,
     "tipo": "ml"
-  },
-  {
-    "codigo": "CUR001",
-    "nome": "Atadura",
-    "quantidade": 30,
-    "tipo": "unidade"
   }
 ]
