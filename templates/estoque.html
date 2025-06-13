@@ -31,29 +31,22 @@
   </thead>
   <tbody>
     {% for item in estoque %}
-    <tr class="bg-white text-center">
-      <form action="/editar_item" method="post" class="flex flex-col md:flex-row">
-        <td class="px-4 py-2 border">
-          <input type="text" name="codigo" value="{{ item.codigo }}" readonly class="w-full text-center bg-gray-100 border-none">
+    <tr id="row-{{ loop.index0 }}">
+      <td id="codigo-{{ loop.index0 }}" class="px-4 py-2 border">{{ item.codigo }}</td>
+      <td id="nome-{{ loop.index0 }}" class="px-4 py-2 border">{{ item.nome }}</td>
+      <td id="tipo-{{ loop.index0 }}" class="px-4 py-2 border">{{ item.tipo }}</td>
+      <td id="quantidade-{{ loop.index0 }}" class="px-4 py-2 border">{{ item.quantidade }}</td>
+       <td class="flex justify-center items-center gap-2">
+        <button onclick="editarLinha(this)" class="bg-yellow-400 hover: yellow-600 text-gray-800 font-bold py-1 px-2 rounded-md text-sm">Editar</button>
+        <form action="/remover_item" method="post" onsubmit="return confirm('Tem certeza que deseja remover este item?');" class="inline-block">
+          <input type="hidden" name="codigo" value="{{ item.codigo }}">
+          |
+          <button type="submit" class="bg-red-500 text-white font-semibold px-4 py-1 rounded hover:bg-red-600 transition">Remover</button>
+        </form>
         </td>
-        <td class="px-4 py-2 border">
-          <input type="text" name="nome" value="{{ item.nome }}" class="w-full border border-gray-300 rounded px-2 py-1">
-        </td>
-        <td class="px-4 py-2 border">
-          <input type="text" name="tipo" value="{{ item.tipo }}" class="w-full border border-gray-300 rounded px-2 py-1">
-        </td>
-        <td class="px-4 py-2 border">
-          <input type="number" name="quantidade" value="{{ item.quantidade }}" class="w-full border border-gray-300 rounded px-2 py-1">
-        </td>
-        <td class="px-4 py-2 border flex flex-col md:flex-row gap-2 justify-center items-center">
-          <button type="submit" class="bg-yellow-400 text-white font-semibold px-4 py-1 rounded hover:bg-yellow-500 transition">Editar</button>
-      </form>
-          <form action="/remover_item" method="post" onsubmit="return confirm('Tem certeza que deseja remover este item?');">
-            <input type="hidden" name="codigo" value="{{ item.codigo }}">
-            <button type="submit" class="bg-red-500 text-white font-semibold px-4 py-1 rounded hover:bg-red-600 transition">Remover</button>
-          </form>
-        </td>
-    </tr>
+  </td>
+</tr>
+
     {% endfor %}
   </tbody>
 </table>
@@ -89,5 +82,27 @@
     Adicionar Novo Item ao Estoque
   </button>
 </form>
+<script>
+function editarLinha(botao) {
+  const linha = botao.parentElement.parentElement;
+  const colunas = linha.querySelectorAll('td');
+  
+  if (botao.textContent === 'Editar') {
+    // Trocar células para inputs (exceto a última coluna de ações)
+    for (let i = 0; i < colunas.length - 1; i++) {
+      const texto = colunas[i].textContent;
+      colunas[i].innerHTML = `<input type="text" value="${texto}" style="width: 90%;">`;
+    }
+    botao.textContent = 'Salvar';
+  } else {
+    // Salvar valores dos inputs e trocar para texto normal
+    for (let i = 0; i < colunas.length - 1; i++) {
+      const input = colunas[i].querySelector('input');
+      colunas[i].textContent = input.value;
+    }
+    botao.textContent = 'Editar';
+  }
+}
+</script>
 
 {% endblock %}
