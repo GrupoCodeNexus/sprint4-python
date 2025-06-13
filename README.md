@@ -12,7 +12,7 @@
 ![diag](https://github.com/user-attachments/assets/f402abbc-c8b5-4ddd-8ffc-82673ec3c583)
 
 ## Links úteis
-Acessar o vídeo da solução no YouTube: <a href="https://www.youtube.com/watch?v=K7ydqLaaQLQ">Clique Aqui</a>
+Acessar o vídeo da solução no YouTube: <a href="https://www.youtube.com/watch?v=0GjBcsHMnXQ">Clique Aqui</a>
 
 ## Tecnologias utilizadas
 - Python
