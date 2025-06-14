@@ -39,8 +39,7 @@ cd sprint4-python
 
 2. **Instalação das bibliotecas necessárias**
 ```bash
-pip install flask
-pip install python-socketio
+pip install flask python-socketio flask_socketio
 ```
 
 4.  **Execute o comando para rodar o projeto:**
