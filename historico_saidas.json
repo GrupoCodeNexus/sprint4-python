@@ -4,5 +4,71 @@
     "item": "Paracetamol",
     "tipo": "ml",
     "paciente": "Gabriela Souza"
+  },
+  {
+    "hora": "01/08/2025 21:44:24",
+    "item": "Dipirona",
+    "tipo": "Caixa",
+    "paciente": "Kayque Carvalho"
+  },
+  {
+    "hora": "01/08/2025 21:44:52",
+    "item": "Soro Fisiologico",
+    "tipo": "Frasco",
+    "paciente": "Matheus Eiki Arizawa"
+  },
+  {
+    "hora": "02/08/2025 08:15:30",
+    "item": "Morfina",
+    "tipo": "Ampola",
+    "paciente": "Ana Paula Gomes"
+  },
+  {
+    "hora": "02/08/2025 08:05:10",
+    "item": "Adrenalina",
+    "tipo": "ml",
+    "paciente": "Rafaela Santos"
+  },
+  {
+    "hora": "02/08/2025 10:20:45",
+    "item": "Atropina",
+    "tipo": "ml",
+    "paciente": "João Pedro Lima"
+  },
+  {
+    "hora": "02/08/2025 11:30:00",
+    "item": "Glicose 50%",
+    "tipo": "Frasco",
+    "paciente": "Carlos Eduardo Mota"
+  },
+  {
+    "hora": "02/08/2025 14:55:18",
+    "item": "Diazepam",
+    "tipo": "Comprimido",
+    "paciente": "Isabela Costa"
+  },
+  {
+    "hora": "02/08/2025 16:40:05",
+    "item": "Amiodarona",
+    "tipo": "Ampola",
+    "paciente": "Felipe Oliveira"
+  },
+  {
+    "hora": "03/08/2025 07:10:22",
+    "item": "Cloreto de Sódio",
+    "tipo": "Frasco",
+    "paciente": "Beatriz Pereira"
+  },
+  {
+    "hora": "03/08/2025 12:00:00",
+    "item": "Cetoprofeno",
+    "tipo": "Comprimido",
+    "paciente": "Lucas Martins"
+  },
+  {
+    "hora": "03/08/2025 15:35:50",
+    "item": "Dexametasona",
+    "tipo": "ml",
+    "paciente": "Sofia Rodrigues"
   }
 ]

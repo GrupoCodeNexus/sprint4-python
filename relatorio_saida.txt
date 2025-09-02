@@ -1,3 +1,14 @@
 Relatório de Itens Retirados
 ========================================
 13/06/2025 17:22:23 - Paracetamol - Tipo: ml - Paciente: Gabriela Souza
+01/09/2025 21:44:24 - Dipirona - Tipo: Caixa - Paciente: Kayque Carvalho
+01/09/2025 21:44:52 - Soro Fisiologico - Tipo: Frasco - Paciente: Matheus Eiki Arizawa
+02/09/2025 08:15:30 - Morfina - Tipo: Ampola - Paciente: Ana Paula Gomes
+02/09/2025 09:05:10 - Adrenalina - Tipo: ml - Paciente: Rafaela Santos
+02/09/2025 10:20:45 - Atropina - Tipo: ml - Paciente: João Pedro Lima
+02/09/2025 11:30:00 - Glicose 50% - Tipo: Frasco - Paciente: Carlos Eduardo Mota
+02/09/2025 14:55:18 - Diazepam - Tipo: Comprimido - Paciente: Isabela Costa
+02/09/2025 16:40:05 - Amiodarona - Tipo: Ampola - Paciente: Felipe Oliveira
+03/09/2025 07:10:22 - Cloreto de Sódio - Tipo: Frasco - Paciente: Beatriz Pereira
+03/09/2025 12:00:00 - Cetoprofeno - Tipo: Comprimido - Paciente: Lucas Martins
+03/09/2025 15:35:50 - Dexametasona - Tipo: ml - Paciente: Sofia Rodrigues
