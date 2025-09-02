@@ -1,6 +1,10 @@
 # SmartFlow | Sprint 4
 
-## ✅ Resumo Geral do Sistema
+Este repositório apresenta a quarta sprint do SmartFlow, um sistema de controle e rastreamento de medicamentos para carrinhos de emergência. O objetivo principal do projeto é garantir segurança, controle e visibilidade no fluxo de suprimentos médicos.
+
+## Resumo do Sistema:
+
+O sistema rastreia a saída de medicamentos do carrinho de emergência e os atrela diretamente à ficha de cada paciente. Para hospitais particulares, isso permite uma gestão de estoque precisa e uma cobrança eficiente, vinculando o uso do medicamento à conta do paciente de forma automatizada e segura.
 
 - 🔗 Integração com IoT (ESP32 + RFID + Servo + LED)
 - 🧠 Cadastro de Cartões RFID Autorizados:
