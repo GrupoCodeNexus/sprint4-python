@@ -6,6 +6,8 @@ Este repositório apresenta a quarta sprint do SmartFlow, um sistema de controle
 
 O sistema rastreia a saída de medicamentos do carrinho de emergência e os atrela diretamente à ficha de cada paciente. Para hospitais particulares, isso permite uma gestão de estoque precisa e uma cobrança eficiente, vinculando o uso do medicamento à conta do paciente de forma automatizada e segura.
 
+<img width="1024" height="883" alt="image" src="https://github.com/user-attachments/assets/d59cfef7-3977-44dc-bdc3-cd4ba3fda8bc" />
+
 - 🔗 Integração com IoT (ESP32 + RFID + Servo + LED)
 - 🧠 Cadastro de Cartões RFID Autorizados:
 - 📄 Geração e Download de Relatório
